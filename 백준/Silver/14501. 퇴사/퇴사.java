@@ -44,16 +44,12 @@ public class Main {
 		if (nt <= N) {
 			// t_idx 시간에 일을 했을때
 			dfs(nt, money+m[t_idx]);
-			
-			// t_idx 시간에 일을 안했을때
-			dfs(t_idx + 1, money);
 		}
 		else {
 			// 배열 범위 넘어갈때는 출력
 			dfs(nt, money);
-            
-            dfs(t_idx+1, money);
 		}
+        dfs(t_idx+1, money);
 	}
 	
 	

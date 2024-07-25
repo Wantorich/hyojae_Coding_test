@@ -1,86 +1,76 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.List;
 import java.util.StringTokenizer;
 
 
 public class Main {
 	static boolean [] v;
-	static ArrayList<Character> op_arr;
-	static char [][] op_pm;
-	static int op_lens = 0, idx = 0;
+	static List <Character> op_arr;
+	static int [] nums;
+	static int max_result = Integer.MIN_VALUE, min_result = Integer.MAX_VALUE;
 	
 	public static void main(String[] args) throws IOException {
-		Scanner sc = new Scanner(System.in);
-		int N = Integer.parseInt(sc.nextLine());
-		int [] nums = new int[N];
-		for (int i = 0; i < N; i++) 
-			nums[i] = sc.nextInt();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int N = Integer.parseInt(br.readLine());
+		nums = new int[N];
 		
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < N; i++) 
+			nums[i] = Integer.parseInt(st.nextToken());
+		
+		st = new StringTokenizer(br.readLine());
 		op_arr = new ArrayList<Character>();
 		char [] ops = {'+', '-', '*', '/'};
 		for (int i = 0; i < 4; i++) {
-			int op_num = sc.nextInt();
+			int op_num = Integer.parseInt(st.nextToken());
 			for (int j = 0; j < op_num; j++) {
 				op_arr.add(ops[i]);
 			}
-			op_lens += op_num;
 		}
+				
+		v = new boolean[op_arr.size()];
 		
-		op_pm = new char[factorial(op_lens)][op_lens];
-		v = new boolean[op_lens];
+		getPm(new int[op_arr.size()], 0);
 		
-		getPm(new char[op_lens], 0);
 		
-		int max = Integer.MIN_VALUE, min = Integer.MAX_VALUE, result;
-		for (int i = 0; i < factorial(op_lens); i++) {
-			result = nums[0];
-			for (int j = 0; j < op_lens; j++) {
-				int or = nums[j+1];
-				switch (op_pm[i][j]) {
-					case '+':
-						result += or;
-						break;
-					case '-':
-						result -= or;
-						break;
-					case '*':
-						result *= or;
-						break;
-					case '/':
-						result /= or;
-				}
+		System.out.printf("%d\n%d", max_result, min_result);
+	}
+	
+	static void calc(int [] ops, int [] nums) {
+		int val = nums[0];
+		for (int i = 0; i < ops.length; i++) {
+			switch (op_arr.get(ops[i])) {
+				case '+':
+					val += nums[i+1];
+					break;
+				case '-':
+					val -= nums[i+1];
+					break;
+				case '*':
+					val *= nums[i+1];
+					break;
+				case '/':
+					val /= nums[i+1];
 			}
-			max = Math.max(max, result);
-			min = Math.min(min, result);
 		}
-		
-		System.out.printf("%d\n%d", max, min);
+		max_result = Math.max(val, max_result);
+		min_result = Math.min(val, min_result);
 	}
 	
-	static int factorial(int n) {
-		return n == 1 ? 1 : n * factorial(n-1);
-	}
-	
-	static void getPm(char [] arr, int k) {
-		if (k == op_lens) {
-			System.arraycopy(arr, 0, op_pm[idx++], 0, arr.length);
+	static void getPm(int [] sel, int k) {
+		if (k == sel.length) {
+			calc(sel, nums);
 			return; 
 		}
 		
 		for (int i = 0; i < v.length; i++) {
 			if (!v[i]) {
 				v[i] = true;
-				arr[k] = op_arr.get(i);
-				getPm(arr, k+1);
+				sel[k] = i;
+				getPm(sel, k+1);
 				v[i] = false;
 			}
 		}

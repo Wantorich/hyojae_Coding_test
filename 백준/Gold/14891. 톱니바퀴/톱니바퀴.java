@@ -61,13 +61,19 @@ public class Main {
 			
 			
 			for (int k = 0; k < turnList.size(); k++) {
+//			System.out.println("turnList : " + turnList.get(k)[0]);
 				changeWheel(wheels[turnList.get(k)[0]], turnList.get(k)[1]);
 			}
+			
+//			for (int k = 1; k <= 4; k++) {
+//				System.out.println(Arrays.toString(wheels[k]));
+//			}
 		}
 		
 		
 		int sum = 0;
 		for (int i = 1; i <= 4; i++) {
+//			System.out.println(Arrays.toString(wheels[i]));
 			sum += wheels[i][0] == '1' ? (int) Math.pow(2, i-1) : 0;
 		}
 		
@@ -76,6 +82,8 @@ public class Main {
 	}
 	
 	static void changeWheel(char [] wheel, int dir) {
+//		System.out.println("-- 휠 바꾸기 --");
+//		System.out.println(Arrays.toString(wheel));
 		StringBuilder sb = new StringBuilder();
 		char [] newChars;
 		switch (dir) {
@@ -87,7 +95,9 @@ public class Main {
 				newChars = sb.append(wheel).insert(len, wheel[0]).deleteCharAt(0).toString().toCharArray();
 				System.arraycopy(newChars, 0, wheel, 0, len);
 				break;
-	    }
+		}
+//		System.out.println(Arrays.toString(wheel));
+//		System.out.println("-- 휠 바꾸기 끝--");
 	}
 
 }

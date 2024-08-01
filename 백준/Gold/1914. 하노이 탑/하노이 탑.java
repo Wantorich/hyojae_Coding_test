@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 public class Main {
 	static int result = 0;
+	static StringBuilder sb = new StringBuilder();
+	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int N = sc.nextInt();
@@ -14,6 +16,7 @@ public class Main {
 		if (N <= 20)
 			hanoi(N, 1, 3);
 		
+		System.out.println(sb.toString());
 		sc.close();
 		
 	}
@@ -21,12 +24,14 @@ public class Main {
 	private static void hanoi(int n, int s, int e) {
 		
 		if (n == 1) {
-			System.out.println(s + " " + e);
+			sb.append(s + " " + e + "\n");
+//			System.out.println(s + " " + e);
 			return;
 		}
 		
 		hanoi(n-1, s, 6-(s+e));
-		System.out.println(s + " " + e);
+		sb.append(s + " " + e + "\n");
+//		System.out.println(s + " " + e);
 		hanoi(n-1, 6-(s+e), e);
 	}
 

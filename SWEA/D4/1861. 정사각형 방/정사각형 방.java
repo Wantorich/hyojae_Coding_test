@@ -17,12 +17,11 @@ class Point {
 }
 
 public class Solution {
-	static int N, max = Integer.MIN_VALUE;
+	static int N, max, min_idx;
 	static Point end_point = new Point(0, 0, 0);
 	static int[][] grid;
 	static boolean[][] v;
 	static Queue<Point> q;
-	static List<Point> result;
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -35,7 +34,7 @@ public class Solution {
 			v = new boolean[N][N];
 			max = Integer.MIN_VALUE;
 			q = new ArrayDeque<Point>();
-			result = new ArrayList<Point>();
+			min_idx = N * N;
 
 			for (int i = 0; i < N; i++) {
 				String[] chars = br.readLine().split(" ");
@@ -47,24 +46,13 @@ public class Solution {
 			// 모든 격자에서 출발점을 바꾸면서 경우의 수 탐색
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < N; j++) {
+					if (N*N - grid[i][j] + 1 < max) continue;
 					v = new boolean[N][N];
 					v[i][j] = true;
 					bfs(i, j);
-//					result = Math.max(result, max);
 				}
 			}
-			
-			int min = Integer.MAX_VALUE;
-			for (Point p : result) {
-//				System.out.println(p);
-				if (grid[p.r][p.c] < min) {
-					min = grid[p.r][p.c];
-					end_point.r = p.r;
-					end_point.c = p.c;
-				}
-			}
-
-			System.out.printf("#%d %d %d\n", t, grid[end_point.r][end_point.c], max);
+			System.out.printf("#%d %d %d\n", t, min_idx, max);
 		}
 	}
 
@@ -76,10 +64,9 @@ public class Solution {
 
 			if (p.d > max) {
 				max = p.d;
-				result.clear();
-				result.add(new Point(r, c, p.d));
+				min_idx = grid[r][c];
 			} else if (p.d == max) {
-				result.add(new Point(r, c, p.d));
+				min_idx = grid[r][c] < min_idx ? grid[r][c] : min_idx;
 			}
 
 			for (int i = 0; i < dr.length; i++) {

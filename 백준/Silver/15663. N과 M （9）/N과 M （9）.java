@@ -39,9 +39,12 @@ public class Main {
 			return;
 		}
 
+        int past = -1;
 		for (int i = 0; i < arr.length; i++) {
 			if (!v[i]) {
+                if (past == arr[i]) continue;
 				v[i] = true;
+                past = arr[i];
 				sel[k] = arr[i];
 				permutation(sel, k + 1, v);
 				v[i] = false;

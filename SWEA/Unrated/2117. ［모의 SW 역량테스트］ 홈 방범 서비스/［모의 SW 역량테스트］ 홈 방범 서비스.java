@@ -13,14 +13,18 @@ public class Solution {
 			M = sc.nextInt();
 			grid = new int[N][N];
 			result = Integer.MIN_VALUE;
+			int homeNumber = 0;
 			
-			for (int i = 0; i < N*N; i++) grid[i/N][i%N] = sc.nextInt();
+			for (int i = 0; i < N*N; i++) {
+				grid[i/N][i%N] = sc.nextInt();
+				if (grid[i/N][i%N] == 1) homeNumber++;
+			}
 			
 			// 한 변의 길이를 모두 커버할 수 있는 range로 시작 범위를 설정함
 			// 아마 이게 최적값이 맞는것같은데 증명은 못하겠음
-            // 수정)) 최적의 시작값이 어딘지를 어떻게 찾아야할지 사실 잘 모르겠음
+			// 수정)) 최적의 시작값이 어딘지를 어떻게 찾아야할지 사실 잘 모르겠음
             // 시작 범위를 너무 크게 설정하면 시간초과가 남
-			int range = N + 1; 
+			int range = N+1; 
 			for (int k = range; k >= 1; k--) {
 				for (int i = 0; i < N*N; i++) {
 					// 모든 정점에 대해서 범위가 K인 BFS 실행
@@ -32,6 +36,8 @@ public class Solution {
 				// range k-1개에서의 비용이 그곳에서 나올 수 있는 집의 최대개수인데
 				// range K에서 이보다 많은 집을 찾았다면 밑에서 더 돌릴필요가 없기때문
 				if (result > (k-1) * (k-1) + (k-2) * (k-2)) break;
+				
+				if (result == homeNumber) break; // 찾을 수 있는 집을 다 찾은경우에도 더 찾을 필요 없음
 			}
 			
 			System.out.printf("#%d %d\n", t, result);

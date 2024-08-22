@@ -8,6 +8,7 @@ public class Main {
 		N = sc.nextInt();
 		M = sc.nextInt();
 		R = sc.nextInt();
+		StringBuilder sb = new StringBuilder();
 
 		grid = new int[N][M];
 		for (int i = 0; i < N; i++) {
@@ -54,10 +55,13 @@ public class Main {
 			}
 			
 		}
+		
 		for (int [] row : grid) {
-			for (int val : row) System.out.print(val + " ");
-			System.out.println();
+			for (int val : row) sb.append(val).append(" ");
+			sb.append("\n");
 		}
+		
+		System.out.println(sb.toString());
 		sc.close();
 	}
 }

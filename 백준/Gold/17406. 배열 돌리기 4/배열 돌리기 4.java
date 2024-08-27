@@ -55,13 +55,10 @@ public class Main {
 				int c = orderArr[sel[i]][1];
 				int s = orderArr[sel[i]][2];
 				
-				
 				rotate(r, c, s, copyArr);
 				// 최소값 구하기
 			}
-			int min = getMinRowSum(copyArr);
-			result = Math.min(result, min);
-			
+			updateMinRowSum(copyArr);
 			return;
 		}
 		
@@ -74,14 +71,16 @@ public class Main {
 		}
 	}
 
-	private static int getMinRowSum(int [][] grid) {
-		int minVal = Integer.MAX_VALUE;
+	private static void updateMinRowSum(int [][] grid) {
 		for (int i = 1; i <= N; i++) {
-			minVal = Math.min(minVal, IntStream.of(grid[i]).sum());
+			result = Math.min(result, IntStream.of(grid[i]).sum());
 		}
-		return minVal;
 	}
 
+	// 방향은 아래 오른쪽 위 왼쪽
+	static int [] dr = {1, 0, -1, 0};
+	static int [] dc = {0, 1, 0, -1};
+	
 	private static void rotate(int r, int c, int s, int [][] grid) {
 		int len = s*2 + 1; // 항상 정사각형
 		
@@ -91,28 +90,12 @@ public class Main {
 			// 전체 돌리는 횟수
 			int temp = grid[sr][sc];
 			
-			// 아래것을 위에 옮김
-			for (int i = 1; i < len - 2*rotate; i++) {
-				grid[sr][sc] = grid[sr+1][sc];
-				sr++;
-			}
-			
-			// 오른쪽것을 왼쪽으로
-			for (int i = 1; i < len - 2*rotate; i++) {
-				grid[sr][sc] = grid[sr][sc+1];
-				sc++;
-			}
-			
-			// 위에것을 아래에 옮김
-			for (int i = 1; i < len - 2*rotate; i++) {
-				grid[sr][sc] = grid[sr-1][sc];
-				sr--;
-			}
-			
-			// 왼쪽것을 오른쪽으로
-			for (int i = 1; i < len - 2*rotate; i++) {
-				grid[sr][sc] = grid[sr][sc-1];
-				sc--;
+			for (int i = 0; i < dr.length; i++) {
+				for (int j = 1; j < len - 2 * rotate; j++) {
+					grid[sr][sc] = grid[sr + dr[i]][sc + dc[i]];
+					sr += dr[i];
+					sc += dc[i];
+				}
 			}
 			
 			// 임시값 옮겨줌

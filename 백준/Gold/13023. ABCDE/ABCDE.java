@@ -25,7 +25,7 @@ public class Main {
 		for (int i = 0; i < N; i++) {
 			if (visit[i] || adjList[i].size() == 0) continue;
 			visit[i] = true;
-			dfs(i, 1, ""+i);
+			dfs(i, 1);
 			visit[i] = false;
 			if (find) {
 				System.out.println(1);
@@ -39,7 +39,7 @@ public class Main {
 
 	// 전부 다 달라야한다는 조건
 	
-	private static void dfs(int v, int cnt, String history) {
+	private static void dfs(int v, int cnt) {
 		if (cnt >= 5) {
 			find = true;
 			return;
@@ -48,10 +48,10 @@ public class Main {
 		for (Integer next : adjList[v]) {
 			if (visit[next]) continue;
 			// history에 존재한다면
-			if (history.indexOf(""+next) != -1) continue;
+//			if (history.indexOf(""+next) != -1) continue;
 			
 			visit[next] = true;
-			dfs(next, cnt+1, history+next);
+			dfs(next, cnt+1);
 			visit[next] = false;
 		}
 	}

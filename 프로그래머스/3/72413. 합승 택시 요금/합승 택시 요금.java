@@ -79,9 +79,9 @@ class Solution {
             int curr = edgeInfo[0];
             int weight = edgeInfo[1];
             
-            //if (visit[curr]) continue;
+            if (visit[curr]) continue;
             
-            //visit[curr] = true;
+            visit[curr] = true;
             // if (curr == A || curr == S || curr == B) selectCnt++;
             // if (selectCnt == 3) break; // A, S, B 거리 다 구했으니 더 구할필요 없음
             
@@ -93,7 +93,7 @@ class Solution {
                     distance[next] = nextWeight + distance[curr];
                     // connect[next] = curr;
                     // 어디서 뻗었는지 from을 업데이트
-                    pq.offer(new int[]{next, nextWeight});
+                    pq.offer(new int[]{next, distance[next]});
                 }
             }
         }

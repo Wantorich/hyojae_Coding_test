@@ -55,11 +55,9 @@ public class Main {
 				edgeCnt++;
 				
 				for (int j = 1; j <= N; j++) {
-					if (adjMatrix[curr][j] == 1) {
-						if (--inDegree[j] == 0) q.offer(j);
-					}
+					if (adjMatrix[curr][j] == 1 && --inDegree[j] == 0) 
+						q.offer(j);
 				}
-				
 			}
 			
 			if (edgeCnt == N) System.out.println(sb.toString());

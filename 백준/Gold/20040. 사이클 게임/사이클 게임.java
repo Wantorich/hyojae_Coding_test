@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Main {
 	static int N, M, parents[];
-	static List<int[]> edgeList;
+	static int[][] edgeList;
 
     public static void main(String[] args) throws NumberFormatException, IOException {
         Scanner sc = new Scanner(System.in);
@@ -15,13 +15,14 @@ public class Main {
         N = Integer.parseInt(input[0]);
         M = Integer.parseInt(input[1]);
         
-        edgeList = new ArrayList(M);
+        edgeList = new int[M][2];
         
         for (int i = 0; i < M; i++) {
         	st = new StringTokenizer(br.readLine());
         	int from = Integer.parseInt(st.nextToken());
         	int to = Integer.parseInt(st.nextToken());
-        	edgeList.add(new int[] {from, to});
+        	edgeList[i][0] = from;
+        	edgeList[i][1] = to;
         }
         
         int result = 0;
@@ -36,7 +37,6 @@ public class Main {
         }
         
         System.out.println(result);
-        
         sc.close();
     }
     

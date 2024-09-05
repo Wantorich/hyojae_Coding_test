@@ -2,12 +2,12 @@ import java.util.*;
 
 public class Main {
 	static int N;
-	static long memo[];
+	static int memo[];
 	
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         N = sc.nextInt();
-        memo = new long[1001];
+        memo = new int[1001];
         memo[1] = 1;
         memo[2] = 2;
         dp();

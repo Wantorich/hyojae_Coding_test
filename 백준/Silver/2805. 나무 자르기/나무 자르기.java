@@ -8,9 +8,8 @@ public class Main {
         long M = sc.nextInt();
         int [] trees = new int[N];
         for (int i = 0; i < N; i++) trees[i] = sc.nextInt();
-        int maxLen = Arrays.stream(trees).max().getAsInt();
         
-        long left = 0, right = maxLen, mid = 0;
+        long left = 0, right = Integer.MAX_VALUE, mid = 0;
         long answer = Integer.MIN_VALUE;
         while (left <= right) {
         	mid = (left + right) / 2;

@@ -4,15 +4,9 @@ import java.util.stream.IntStream;
 
 class Solution {
     static int MAX_VAL;
-    static List<String> opList, resList;
-    static int[] radixCnt;
+    static List<String> resList = new ArrayList();
     
     public String[] solution(String[] expressions) {
-        String[] answer = {};
-        opList = new ArrayList();
-        radixCnt = new int[10];
-        resList = new ArrayList();
-        
         List<String[]> expList = new ArrayList();
         for (String expression : expressions) {
             String[] params = getParameters(expression);
@@ -23,105 +17,66 @@ class Solution {
         O:for (int r = MAX_VAL+1; r <= 9; r++) {
             for (int i = 0; i < expList.size(); i++) {
                 String [] exps = expList.get(i);
-                if (exps[2].equals("X")) continue;
+                if (exps[4].equals("X")) continue;
                 
                 int a = radixInt(exps[0], r);
-                int b = radixInt(exps[1], r);
-                int c = radixInt(exps[2], r);
+                int b = radixInt(exps[2], r);
+                int c = radixInt(exps[4], r);
 
-                int leftExp = opList.get(i).equals("+") ? a + b : a - b;
-                if (leftExp != c) {
-                    continue O;                    
-                }
+                int leftExp = exps[1].equals("+") ? a + b : a - b;
+                if (leftExp != c) continue O;                    
             }
             maxIdxList.add(r);
         }
         
-        for (int num : maxIdxList)
-            System.out.print(num + " ");
-        
         for (int i = 0; i < expList.size(); i++) {
             String[] exp = expList.get(i);
-            if (!exp[2].equals("X")) continue;
-            judgeExp(exp, i, maxIdxList);
+            if (!exp[4].equals("X")) continue;
+            judgeExp(exp, maxIdxList);
         }
-        
-        for (String str : resList)
-            System.out.println(str);
-        
+
         return resList.toArray(new String[0]);
-    }
-    
-    static String convertValue(int origin, int radix) {
-        if (origin == 0) return "0";
-        
-        StringBuilder sb = new StringBuilder("");
-        int initVal = 1;
-        while (initVal*radix <= origin) initVal *= radix;
-        while (initVal > 0) {
-            int divide = origin / initVal;
-            sb.append(divide);
-            origin %= initVal;
-            initVal /= radix;
-        }
-        return sb.toString();
     }
     
     static int radixInt(String origin, int radix) {
         int result = 0;
         int num = Integer.parseInt(origin);
-        if (num >= 100) {
-            result += radix*radix* (num / 100);
-            num %= 100;
+        for (int i = 2; i >= 0; i--) {
+            int tenPow = (int) Math.pow(10, i);
+            if (num >= tenPow) {
+                result += num / (int) Math.pow(10, i) * (int) Math.pow(radix, i);
+                num %= tenPow;
+            }
         }
-        if (num >= 10) {
-            result += radix * (num / 10);
-            num %= 10;
-        }
-        result += num;
-        
-        // for (int i = origin.length()-1; i >= 0; i--) {
-        //     result += (origin.charAt(i) - '0') * (int) (Math.pow(radix, origin.length()-1-i));
-        // }
         return result;
     }
     
-    static void judgeExp(String[] exp, int opIdx, List<Integer> idxList) {
+    static void judgeExp(String[] exp, List<Integer> idxList) {
         Set<String> resSet = new HashSet();
         for (int idx : idxList) {
             int a = radixInt(exp[0], idx);
-            int b = radixInt(exp[1], idx);
-            int leftExp = opList.get(opIdx).equals("+") ? a + b : a - b;
-            resSet.add(convertValue(leftExp, idx));
+            int b = radixInt(exp[2], idx);
+            int leftExp = exp[1].equals("+") ? a + b : a - b;
+            resSet.add(Integer.toString(leftExp, idx));
         }
 
         Iterator<String> it = resSet.iterator();
-        
-        String result = String.format("%s %s %s = X", exp[0], opList.get(opIdx), exp[1]);
+        String result = String.format("%s %s %s = X", exp[0], exp[1], exp[2]);
         result = resSet.size() > 1 ? result.replace("X", "?") : result.replace("X", it.next());
-        
         resList.add(result);        
     }
     
     static String[] getParameters(String expression) {
         StringTokenizer st = new StringTokenizer(expression, " ");
-        List<String> params = new ArrayList();
-        
+        String[] result = new String[5];
         for (int i = 0; i < 5; i++) {
             String token = st.nextToken().trim();
-            if (i == 1) {
-                opList.add(token);
-                continue;
-            }
-            if (i == 3) continue;
-            params.add(token);
-            
-            if (!token.equals("X")) {
-                for (int j = 0; j < token.length(); j++) {
+            result[i] = token;
+            if (i == 0 || i == 2 || (i == 4 && !token.equals("X"))) {
+                for (int j = 0; j < token.length(); j++) 
                     MAX_VAL = Math.max(MAX_VAL, token.charAt(j) - '0');
-                }
             }
         }
-        return params.toArray(new String[0]);
+        return result;
     }
 }

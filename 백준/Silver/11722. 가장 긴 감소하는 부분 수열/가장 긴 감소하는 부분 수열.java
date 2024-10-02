@@ -8,17 +8,19 @@ public class Main {
         int [] nums = new int[N+1];
         for (int i = 1; i < nums.length; i++) 
             nums[i] = sc.nextInt();
-        int[] lis = new int[N+1];
-        Arrays.fill(lis, 1);
-        for (int i = 1; i < lis.length; i++) {
-            for (int j = 1; j < i; j++) {
-                if (nums[j] > nums[i] && lis[j] + 1 > lis[i]) {
-                    lis[i] = lis[j] + 1;
-                }
-            }
+
+        int [] minArr = new int[N+1];
+        int len = 0;
+        O:for (int i = 1; i < nums.length; i++) {
+        	for (int j = 0; j < len; j++) {
+        		if (minArr[j] <= nums[i]) {
+        			minArr[j] = nums[i];
+        			continue O;
+        		}
+        	}
+    		minArr[len++] = nums[i];
         }
-        int max = Arrays.stream(lis).max().getAsInt();
-        System.out.println(max);
+        System.out.println(len);
         sc.close();
     }
 }

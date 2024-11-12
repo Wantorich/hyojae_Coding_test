@@ -2,10 +2,10 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
+    static int idx;
     public int[] solution(int[] fees, String[] records) {
-        List<Integer> answer = new ArrayList<>();
-        
         TreeMap<String, Map<String, List<String>>> recordMap = new TreeMap<>();
+          
         Arrays.stream(records)
             .map(record -> record.split(" ")[1])
             .distinct()
@@ -16,6 +16,7 @@ class Solution {
                 recordMap.put(carNum, timeMap);
             });
             
+        int[] answer = new int[recordMap.size()];
         Arrays.stream(records)
             .map(record -> record.split(" "))
             .forEach(info -> recordMap.get(info[1]).get(info[2]).add(info[0]));
@@ -27,25 +28,24 @@ class Solution {
             if (inList.size() == outList.size() + 1) 
                 outList.add("23:59");
             
-            int inSum = inList.stream().mapToInt(time -> {
-                int min = Integer.parseInt(time.substring(0, 2)) * 60;
-                int sec = Integer.parseInt(time.substring(3));
-                return min + sec;
-            }).sum();
-            
-            int outSum = outList.stream().mapToInt(time -> {
-                int min = Integer.parseInt(time.substring(0, 2)) * 60;
-                int sec = Integer.parseInt(time.substring(3));
-                return min + sec;
-            }).sum();
-            
+            int inSum = inList.stream().mapToInt(time -> timeToNum(time)).sum();
+            int outSum = outList.stream().mapToInt(time -> timeToNum(time)).sum();
             int parkingTime = outSum - inSum;
-            if (parkingTime <= fees[0]) answer.add(fees[1]);
-            else {
+            
+            int fee = fees[1];
+            if (parkingTime > fees[0]) {
                 double addtionalFee = Math.ceil(1.0 * (parkingTime - fees[0]) / fees[2]) * fees[3];
-                answer.add(fees[1] + (int) addtionalFee);
+                fee += (int) addtionalFee;
             }
+            
+            answer[idx++] = fee;
         }
-        return answer.stream().mapToInt(Integer::intValue).toArray();
+        return answer;
+    }
+    
+    int timeToNum(String time) {
+        int min = Integer.parseInt(time.substring(0, 2)) * 60;
+        int sec = Integer.parseInt(time.substring(3));
+        return min + sec;
     }
 }

@@ -20,8 +20,12 @@ public class Main {
 		int[] parents = new int[N+1];
 		dfs(1, adjList, visit, parents);
 		
-		for (int i = 2; i <= N; i++)
-			System.out.println(parents[i]);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 2; i <= N; i++) {
+			sb.append(parents[i]);
+			sb.append("\n");
+		}
+		System.out.println(sb.toString());
 		sc.close();
 	}
 

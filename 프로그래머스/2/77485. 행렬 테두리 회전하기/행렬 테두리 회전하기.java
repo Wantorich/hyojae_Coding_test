@@ -1,6 +1,9 @@
 import java.util.*;
 
 class Solution {
+    static int[] dr = {1, 0, -1, 0};
+    static int[] dc = {0, 1, 0, -1};
+    
     public int[] solution(int rows, int columns, int[][] queries) {
         List<Integer> answer = new ArrayList<>();
         int[][] matrix = new int[rows+2][columns+2];
@@ -23,21 +26,20 @@ class Solution {
     static int rotate(int r1, int c1, int r2, int c2, int[][] matrix) {
         int start = matrix[r1][c1];
         int min = start;
-        for (int i = r1; i < r2; i++) {
-           min = Math.min(min, matrix[i+1][c1]);
-           swap(i, c1, i+1, c1, matrix);
-        }
-        for (int j = c1; j < c2; j++) {
-            min = Math.min(min, matrix[r2][j+1]);
-            swap(r2, j, r2, j+1, matrix);
-        }
-        for (int i = r2; i > r1; i--) {
-            min = Math.min(min, matrix[i-1][c2]);
-           swap(i, c2, i-1, c2, matrix);
-        }
-        for (int j = c2; j > c1 + 1; j--) { // 마지막 1개는 스왑안함
-            min = Math.min(min, matrix[r1][j-1]);
-            swap(r1, j, r1, j-1, matrix);
+        int sr = r1, sc = c1;
+        int rowLen = r2 - r1;
+        int colLen = c2 - c1;
+        List<Integer> lens = Arrays.asList(rowLen, colLen, rowLen, colLen - 1);
+        
+        for (int i = 0; i < dr.length; i++) {
+            for (int j = 0; j < lens.get(i); j++) {
+                int nr = sr + dr[i];
+                int nc = sc + dc[i];
+                min = Math.min(min, matrix[nr][nc]);
+                swap(sr, sc, nr, nc, matrix);
+                sr = nr;
+                sc = nc;
+            }
         }
         matrix[r1][c1+1] = start;
         return min;

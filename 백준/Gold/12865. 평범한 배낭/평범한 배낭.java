@@ -14,20 +14,18 @@ public class Main {
 			products.add(new int[] {weight, value});
 		}
 		
-		int[][] dp = new int[N+1][K+1];
+		int[] dp = new int[K+1];
 		
 		for (int i = 1; i <= N; i++) {
 			int[] product = products.get(i);
 			int weight = product[0];
 			int value = product[1];
-			for (int j = 1; j <= K; j++) {
-				dp[i][j] = dp[i-1][j];
-				if (j - weight < 0) continue;
-				dp[i][j] = Math.max(dp[i][j], dp[i-1][j-weight] + value);
+			for (int j = K; j >= weight; j--) {
+				dp[j] = Math.max(dp[j], dp[j-weight] + value);
 			}
 		}
 		
-		answer = Arrays.stream(dp[N]).max().getAsInt();
+		answer = Arrays.stream(dp).max().getAsInt();
 		System.out.println(answer);
 		sc.close();
 	}

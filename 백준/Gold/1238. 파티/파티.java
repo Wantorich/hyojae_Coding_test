@@ -47,7 +47,7 @@ public class Main {
 		int[] dis = new int[N+1];
 		Arrays.fill(dis, Integer.MAX_VALUE);
 		dis[v] = 0;
-		boolean[] visit = new boolean[N+1];
+//		boolean[] visit = new boolean[N+1];
 		PriorityQueue<int[]> pq = new PriorityQueue<>(
 				(a, b) -> Integer.compare(a[1], b[1]));
 		pq.offer(new int[] {v, 0});
@@ -56,10 +56,10 @@ public class Main {
 			int[] edge = pq.poll();
 			
 			if (edge[0] == X && v != X) break;
-			visit[edge[0]] = true;
+//			visit[edge[0]] = true;
 			
 			for (int[] next : adjList[edge[0]]) {
-				if (visit[next[0]]) continue;
+//				if (visit[next[0]]) continue;
 				
 				if (dis[next[0]] > dis[edge[0]] + next[1]) {
 					dis[next[0]] = dis[edge[0]] + next[1];

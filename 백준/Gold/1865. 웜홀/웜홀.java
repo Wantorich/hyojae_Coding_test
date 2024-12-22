@@ -1,27 +1,26 @@
 import java.util.*;
 
 public class Main {
+	static int N, INF = Integer.MAX_VALUE/3;
+//	static int[][] adjMatrix;
+	static List<int[]>[] adjList;
+	static int[] dis;
+	static boolean[] connect;
+	static Set<Integer> paramSet;
 	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int testCase = sc.nextInt();
-		int[][] adjMatrix;
 		StringBuilder sb = new StringBuilder();
-		int INF = Integer.MAX_VALUE;
 		
 		O:for (int tc = 1; tc <= testCase; tc++) {
-			int N = sc.nextInt();
+			N = sc.nextInt();
 			int M = sc.nextInt();
 			int W = sc.nextInt();
 			
-			adjMatrix = new int[N+1][N+1];
-			
-			for (int i = 1; i <= N; i++) {
-				for (int j = 1; j <= N; j++) {
-					if (i == j) adjMatrix[i][j] = 0;
-					else adjMatrix[i][j] = INF;
-				}
-			}
+			adjList = new ArrayList[N+1];
+			for (int i = 1; i <= N; i++)
+				adjList[i] = new ArrayList<int[]>();
 			
 			int from, to, weight;
 			for (int i = 1; i <= M+W; i++) {
@@ -30,49 +29,58 @@ public class Main {
 				weight = sc.nextInt();
 				
 				if (i <= M) {
-					adjMatrix[from][to] = Math.min(adjMatrix[from][to], weight);
-					adjMatrix[to][from] = Math.min(adjMatrix[to][from], weight);
+					adjList[from].add(new int[] {to, weight});
+					adjList[to].add(new int[] {from, weight}); 
 				} else {
-					adjMatrix[from][to] = Math.min(adjMatrix[from][to], -weight);
+					adjList[from].add(new int[] {to, -weight});
 				}
 			}
 			
-			for (int k = 1; k <= N; k++) {
-				for (int i = 1; i <= N; i++) {
-					for (int j = 1; j <= N; j++) {
-						int prev = adjMatrix[i][k];
-						int next = adjMatrix[k][j];
-						if (prev == INF || next == INF) 
-							continue;
-						adjMatrix[i][j] = Math.min(adjMatrix[i][j], prev + next); 
-//						System.out.println("prev : " + prev + ", next : " + next);
-					}
-				}
-			}
+			dis = new int[N+1];
+			Arrays.fill(dis, INF);
+			connect = new boolean[N+1];
+			int cnt = 0;
 			
 			for (int i = 1; i <= N; i++) {
-				if (adjMatrix[i][i] < 0) {
-//					for (int [] row : adjMatrix)
-//						System.out.println(Arrays.toString(row));
-					sb.append("YES").append("\n");
+				if (adjList[i].isEmpty() || connect[i]) continue;
+				dis[i] = 0;
+				dfs(i);
+			}
+			
+			
+			for (int k = 1; k <= N; k++) {
+				cnt = 0;
+				for (int i = 1; i <= N; i++) {
+					for (int[] edge : adjList[i]) {
+						from = i;
+						to = edge[0];
+						weight = edge[1];
+						if (dis[to] > dis[from] + weight) {
+							dis[to] = dis[from] + weight;
+							cnt++;
+						}
+					}
+				}
+				if (cnt == 0) {
+					sb.append("NO").append("\n");
 					continue O;
 				}
 			}
 			
-//			for (int [] row : fw)
-//				System.out.println(Arrays.toString(row));
-			sb.append("NO").append("\n");
+			sb.append("YES").append("\n");
 		}
 		System.out.println(sb.toString());
 		sc.close();
 	}
-	
-	static int getMin(List<Integer> list) {
-		int result = Integer.MAX_VALUE;
-		for (int num : list) {
-			result = Math.min(result, num);
+
+	private static void dfs(int v) {
+		if (connect[v]) return;
+		connect[v] = true;
+		
+		for (int[] edge : adjList[v]) {
+			int next = edge[0];
+			if (connect[next]) continue;
+			dfs(next);
 		}
-		return result;
 	}
 }
-

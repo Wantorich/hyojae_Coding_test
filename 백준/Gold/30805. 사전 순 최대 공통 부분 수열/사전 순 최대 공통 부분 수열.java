@@ -55,28 +55,24 @@ public class Main {
 		if (s1.isBlank()) return s2;
 		else if (s2.isBlank()) return s1;
 		
-		String[] longer, shorter;
 		String[] split_s1 = s1.split(" ");
 		String[] split_s2 = s2.split(" ");
 		
-		if (split_s1.length > split_s2.length) {
-			longer = split_s1;
-			shorter = split_s2;
-		} else {
-			longer = split_s2;
-			shorter = split_s1;
-		}
+		int minLen = Math.min(split_s1.length, split_s2.length);
 		
-		for (int i = 0; i < shorter.length; i++) {
-			int a = Integer.parseInt(shorter[i]);
-			int b = Integer.parseInt(longer[i]);
+		for (int i = 0; i < minLen; i++) {
+			int a = Integer.parseInt(split_s1[i]);
+			int b = Integer.parseInt(split_s2[i]);
 			
 			if (a < b) {
-				return String.join(" ", longer);
+				return String.join(" ", split_s2);
 			} else if (a > b) {
-				return String.join(" ", shorter);
+				return String.join(" ", split_s1);
 			}
 		}
-		return String.join(" ", longer);
+		
+		return split_s1.length > split_s2.length 
+				? String.join(" ", split_s1)
+				: String.join(" ", split_s2);
 	}
 }

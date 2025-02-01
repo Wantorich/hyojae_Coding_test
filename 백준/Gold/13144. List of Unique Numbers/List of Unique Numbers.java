@@ -7,7 +7,7 @@ public class Main {
     	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     	int N = Integer.parseInt(br.readLine());
     	int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-    	long[] counts = new long[100001];
+    	int[] counts = new int[100001];
     	
     	long answer = 0;
     	int left = 0, right = 0;

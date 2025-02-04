@@ -8,10 +8,20 @@ public class Main {
     	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     	int N = Integer.parseInt(br.readLine());
     	List<Integer> primeList = new ArrayList<>();
-    	for (int i = 2; i <= N; i++) {
-    		if (isPrime(i))
-    			primeList.add(i);
+    	boolean[] isPrime = new boolean[N+1];
+    	Arrays.fill(isPrime, true);
+    	
+    	for (int i = 2; i <= (int) Math.sqrt(N); i++) {
+    		if (!isPrime[i]) continue;
+    		for (int j = i * i; j <= N; j += i) {
+    			isPrime[j] = false;
+    		}
     	}
+    	
+    	for (int i = 2; i <= N; i++)
+    		if (isPrime[i])
+    			primeList.add(i);
+    	
     	primeList.add(0);
     	
     	int left = 0, right = 0;
@@ -30,11 +40,4 @@ public class Main {
     	
     	System.out.println(answer);
     }
-
-	private static boolean isPrime(int n) {
-		for (int i = 2; i < (int) Math.sqrt(n) + 1; i++) {
-			if (n % i == 0) return false;
-		}
-		return true;
-	}
 }

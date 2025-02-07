@@ -1,58 +1,37 @@
+import java.io.*;
 import java.util.*;
-
-class Node implements Comparable<Node> {
-    int value;
-    int classIdx;
-    int pointer;
-
-    public Node(int value, int classIdx, int pointer) {
-        this.value = value;
-        this.classIdx = classIdx;
-        this.pointer = pointer;
-    }
-
-    @Override
-    public int compareTo(Node other) {
-        return Integer.compare(this.value, other.value);
-    }
-}
+import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        int M = sc.nextInt();
-        int[][] classes = new int[N][M];
-        
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                classes[i][j] = sc.nextInt();
-            }
-            Arrays.sort(classes[i]);
-        }
-        
-        PriorityQueue<Node> heap = new PriorityQueue<>();
-        int currentMax = Integer.MIN_VALUE;
-        
-        for (int i = 0; i < N; i++) {
-            int val = classes[i][0];
-            heap.add(new Node(val, i, 0));
-            currentMax = Math.max(currentMax, val);
-        }
-        
-        int minRange = Integer.MAX_VALUE;
-        
-        while (true) {
-            Node minNode = heap.poll();
-            minRange = Math.min(minRange, currentMax - minNode.value);
-            
-            if (minNode.pointer == M - 1) break;
-            
-            int nextVal = classes[minNode.classIdx][minNode.pointer + 1];
-            heap.add(new Node(nextVal, minNode.classIdx, minNode.pointer + 1));
-            currentMax = Math.max(currentMax, nextVal);
-        }
-        
-        System.out.println(minRange);
+	
+    public static void main(String[] args) throws IOException {
+    	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    	StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+    	int N = Integer.parseInt(st.nextToken());
+    	int M = Integer.parseInt(st.nextToken());
+    	
+    	int[][] nums = new int[N][M];
+    	for (int i = 0; i < N; i++) {
+    		nums[i] = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+    		Arrays.sort(nums[i]);
+    	}
+    	
+    	int[] pointers = new int[N];
+    	TreeSet<int[]> ts = new TreeSet<>((a, b) -> Integer.compare(a[1], b[1]));
+    	for (int i = 0; i < N; i++)
+    		ts.add(new int[] {i, nums[i][0]});
+    	
+    	int answer = Integer.MAX_VALUE;
+    	
+    	while (true) {
+    		answer = Math.min(answer, ts.last()[1] - ts.first()[1]);
+			int index = ts.first()[0];
+			if (++pointers[index] == M) 
+				break;
+			ts.remove(ts.first());
+			ts.add(new int[] {index, nums[index][pointers[index]]});
+    	}
+    	
+    	System.out.println(answer);
     }
 }

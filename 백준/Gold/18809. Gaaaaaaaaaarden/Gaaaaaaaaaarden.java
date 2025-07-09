@@ -1,139 +1,134 @@
 import java.util.*;
-import java.util.Map.Entry;
 import java.io.*;
-import java.awt.Point;
 
 public class Main {
-	static int answer;
-	static int N, M, G, R, map[][];
-	static List<Point> pointList = new ArrayList<>();
+    static int N, M, G, R;
+    static int[][] map;
+    static List<int[]> candidates = new ArrayList<>();
+    static int maxFlower = 0;
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		G = Integer.parseInt(st.nextToken());
-		R = Integer.parseInt(st.nextToken());
-		
-		map = new int[N][M];
-		int val;
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine(), " ");
-			for (int j = 0; j < M; j++) {
-				val = Integer.parseInt(st.nextToken());
-				map[i][j] = val;
-				if (val == 2) {
-					pointList.add(new Point(i, j));
-				}
-			}
-		}
-		
-		// index, greenCnt, redCnt, sel[] -> 놓을 수 있는 자리 
-		// sel -> 0 : 아무것도 없음, 4 : Green, 8 : Red
-		selPos(0, G, R, new int[pointList.size()]);
-		System.out.println(answer);
-	}
+    static final int BLANK = 0;
+    static final int LAKE = 0;
+    static final int GROUND = 1;
+    static final int GARDEN = 2;
 
-	private static void selPos(int start, int gc, int rc, int[] sel) {
-		// 종료 조건
-		if (gc == 0 && rc == 0) {
-			// simulation
-			int flowerCnt = simulation(sel);
-			answer = Math.max(answer, flowerCnt);
-			return;
-		}
-		
-		if (start == sel.length)
-			return;
-		
-		for (int i = start; i < sel.length; i++) {
-			int initial = sel[i];
-			if (gc > 0) {
-				sel[i] = 4;
-				selPos(i+1, gc-1, rc, sel);
-				sel[i] = initial;
-			}
-			
-			if (rc > 0) {
-				sel[i] = 8;
-				selPos(i+1, gc, rc-1, sel);
-				sel[i] = initial;
-			}
-		}
-	}
+    static final int GREEN = 1;
+    static final int RED = 2;
+    static final int FLOWER = 3;
 
-	private static int simulation(int[] sel) {
-		// sel을 순회하면서 색깔에 맞게 map에 배양액 뿌림 
-		// map 복사
-		int result = 0;
-		int[][] cloneMap = new int[N][M];
-		for (int i = 0; i < N; i++) {
-			cloneMap[i] = map[i].clone();
-		}
-		
-		ArrayDeque<Point> q = new ArrayDeque<>();
-		for (int i = 0; i < sel.length; i++) {
-			if (sel[i] != 0) {
-				Point p = pointList.get(i);
-				cloneMap[p.x][p.y] = sel[i]; 
-				q.offer(p);
-			}
-		}
-		
-		int[] dr = {-1, 0, 1, 0};
-		int[] dc = {0, 1, 0, -1};
-		int nr, nc;
-		Map<Point, Integer> spreadMap = new HashMap<>();
-		
-		while (!q.isEmpty()) {
-			int qSize = q.size();
-			spreadMap.clear();
-			for (int j = 0; j < qSize; j++) {
-				Point curr = q.poll();
-				int status = cloneMap[curr.x][curr.y];
-				
-				// 상하좌우 배양액 뿌리기 
-				// 배양액 퍼지는 조건 설정하기 -> map의 위치가 2인 곳만 가능 
-				for (int i = 0; i < dr.length; i++) {
-					nr = curr.x + dr[i];
-					nc = curr.y + dc[i];
-					
-					if (nr < 0 || nr >= N || nc < 0 || nc >= M 
-							|| (cloneMap[nr][nc] != 2 && cloneMap[nr][nc] != 1))
-						continue;
-						
-					// 어디 위치에, 무슨 색 -> 2가지 정보, bitmasking? 2자리로 1111
-					Point next = new Point(nr, nc);
-					spreadMap.compute(next, (k, prev) -> prev == null ? status : prev | status);
-				}
-			}
-			
-			// Map에 저장한거 일괄 반영해주기 
-			for (Entry<Point, Integer> entry : spreadMap.entrySet()) {
-				// 꽃인 경우는 1100,그린은 100, 레드는 1000
-				Point loc = entry.getKey();
-				int val = entry.getValue();
-				cloneMap[loc.x][loc.y] = val;
-				
-				if (entry.getValue() == 12) {
-					result++;
-					continue;
-				}
-				
-				q.offer(loc);
-			}
-		}
-		
-		return result;
-	}
+    static int[] dr = {-1, 0, 1, 0};
+    static int[] dc = {0, 1, 0, -1};
+
+    static class Cell {
+        int r, c, color, time;
+
+        public Cell(int r, int c, int color, int time) {
+            this.r = r;
+            this.c = c;
+            this.color = color;
+            this.time = time;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        G = Integer.parseInt(st.nextToken());
+        R = Integer.parseInt(st.nextToken());
+
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] == GARDEN) {
+                    candidates.add(new int[]{i, j});
+                }
+            }
+        }
+
+        combGreen(0, 0, new ArrayList<>());
+        System.out.println(maxFlower);
+    }
+
+    // 1) Green 조합
+    static void combGreen(int idx, int g, List<Integer> greens) {
+        if (g == G) {
+            combRed(0, 0, greens, new ArrayList<>());
+            return;
+        }
+        if (idx == candidates.size()) return;
+
+        greens.add(idx);
+        combGreen(idx + 1, g + 1, greens);
+        greens.remove(greens.size() - 1);
+        combGreen(idx + 1, g, greens);
+    }
+
+    // 2) Red 조합 (Green 중복 방지)
+    static void combRed(int idx, int r, List<Integer> greens, List<Integer> reds) {
+        if (r == R) {
+            simulate(greens, reds);
+            return;
+        }
+        if (idx == candidates.size()) return;
+
+        if (!greens.contains(idx)) {
+            reds.add(idx);
+            combRed(idx + 1, r + 1, greens, reds);
+            reds.remove(reds.size() - 1);
+        }
+        combRed(idx + 1, r, greens, reds);
+    }
+
+    // 3) BFS 퍼짐 시뮬레이션
+    static void simulate(List<Integer> greens, List<Integer> reds) {
+        int[][] visited = new int[N][M]; // 0: 미방문, 1: Green, 2: Red, 3: Flower
+        int[][] time = new int[N][M];
+        Queue<Cell> q = new ArrayDeque<>();
+
+        for (int g : greens) {
+            int[] p = candidates.get(g);
+            visited[p[0]][p[1]] = GREEN;
+            q.offer(new Cell(p[0], p[1], GREEN, 0));
+        }
+        for (int r : reds) {
+            int[] p = candidates.get(r);
+            visited[p[0]][p[1]] = RED;
+            q.offer(new Cell(p[0], p[1], RED, 0));
+        }
+
+        int flowerCount = 0;
+
+        while (!q.isEmpty()) {
+            int size = q.size();
+            while (size-- > 0) {
+                Cell curr = q.poll();
+                if (visited[curr.r][curr.c] == FLOWER) continue;
+
+                for (int d = 0; d < 4; d++) {
+                    int nr = curr.r + dr[d];
+                    int nc = curr.c + dc[d];
+                    if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+                    if (map[nr][nc] == LAKE) continue;
+                    if (visited[nr][nc] == FLOWER) continue;
+
+                    if (visited[nr][nc] == 0) {
+                        visited[nr][nc] = curr.color;
+                        time[nr][nc] = curr.time + 1;
+                        q.offer(new Cell(nr, nc, curr.color, curr.time + 1));
+                    } else if (visited[nr][nc] != curr.color && time[nr][nc] == curr.time + 1) {
+                        // 다른 색이 같은 시간에 퍼지면 꽃
+                        visited[nr][nc] = FLOWER;
+                        flowerCount++;
+                    }
+                }
+            }
+        }
+
+        maxFlower = Math.max(maxFlower, flowerCount);
+    }
 }
-
-/*
- * 배양액을 뿌릴 수 있는 땅의 개수 >= 배양액 수
- * 즉, 어디 뿌릴지 정해야함 -> 경우의 수가 다 다름 (완탐) 
- * 근데 같은색 배양액의 순서를 바꾸는건 같은 경우임 -> 가지치기 
- * 매 칸마다 초록색-빨간색 선택 
- * 배양액 배치 + 시뮬레이션  
- *  
- */

@@ -34,11 +34,7 @@ public class Main {
 	  	}
 	  	
 	  	if (sum <= M) {
-	  		if (flag) {
-	  			answer = Math.max(answer, mid);
-	  		} else {
-	  			answer = Math.max(answer, max);
-	  		}
+	  		answer = Math.max(answer, mid);
 	  		left = mid + 1;
 	  	} else {
 	  		right = mid - 1;

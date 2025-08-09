@@ -1,90 +1,76 @@
 import java.util.*;
+import java.awt.Point;
 
 class Robot {
-    int r, c;
-    boolean status = true;
-    Queue<int[]> routeQ;
+    Point pos;
+    int index;
+    int[] route;
+    boolean isActive;
     
-    Robot(int r, int c) {
-        this.r = r;
-        this.c = c;
-        routeQ = new LinkedList<int[]>();
+    Robot (int[] pos, int[] route) {
+        this.pos = new Point(pos[0], pos[1]);
+        this.route = route;
+        isActive = true;
     }
     
-    void addRoute(int[] route) {
-        routeQ.offer(new int[]{route[0], route[1]});
-    }
-    
-    void move(int[][] map) {
-        if (routeQ.isEmpty()) {
-            map[r][c]--;
-            status = false;
-            return;
+    Point move(int[][] points) {
+        if (!isActive) return null;
+        
+        Point next = new Point(points[route[index]-1][0], points[route[index]-1][1]);
+
+        if (pos.x != next.x) {
+            this.pos.x = next.x > this.pos.x ? this.pos.x + 1 : this.pos.x - 1;
+        } else if (next.y != this.pos.y){
+            this.pos.y = next.y > this.pos.y ? this.pos.y + 1 : this.pos.y - 1;
         }
         
-        int [] dest = routeQ.peek();
-        map[r][c]--;
-        
-        if (r < dest[0]) r++;
-        else if (r > dest[0]) r--;
-        else if (c < dest[1]) c++;
-        else if (c > dest[1]) c--;
-        
-        if (r == dest[0] && c == dest[1]) {
-            routeQ.poll();
+        if (this.pos.equals(next)) {
+            if (index == route.length - 1) {
+                isActive = false; 
+            }
+            index++;
         }
         
-        map[r][c]++;
+        return this.pos;
     }
 }
 
 class Solution {
-    static int map[][];
-    static int SIZE = 102;
-    
     public int solution(int[][] points, int[][] routes) {
-        map = new int[SIZE][SIZE];
         int answer = 0;
-        
-        List<Robot> robots = new ArrayList();
-        for (int i = 0; i < routes.length; i++) {
-            int [] route = routes[i];
-            int pointIdx = route[0];
-            int sr = points[pointIdx-1][0];
-            int sc = points[pointIdx-1][1];
-            map[sr][sc]++;
-            Robot robot = new Robot(sr,sc);
-            for (int j = 1; j < route.length; j++) {
-                pointIdx = route[j];
-                robot.addRoute(points[pointIdx-1]);
-            }
-            robots.add(robot);
+        List<Robot> robotList = new ArrayList<>();
+        for (int[] route : routes) {
+            int[] startP = points[route[0]-1];
+            robotList.add(new Robot(startP, route));
         }
         
-        // 충돌한 놈 있나 확인하기
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (map[i][j] >= 2) answer++;
-            }
-        }
-        
-        while (robots.size() > 0) {
-            for (int i = 0; i < robots.size(); i++) {
-                if (!robots.get(i).status) {
-                    robots.remove(i--);
-                    continue;
-                }
-                robots.get(i).move(map);
-            }
-            
-            // 충돌한 놈 있나 확인하기
-            for (int i = 0; i < SIZE; i++) {
-                for (int j = 0; j < SIZE; j++) {
-                    if (map[i][j] >= 2) answer++;
+        Map<Point, Integer> map = new HashMap<>();
+        boolean flag = true;
+        while (flag) {
+            flag = false;
+            for (Robot robot : robotList) {
+                if (!robot.isActive) continue;
+                flag = true;
+                Point point = robot.move(points);
+                Integer value = map.get(point);
+                if (value == null) {
+                    map.put(point, 1);
+                } else if (value == 1) {
+                    map.put(point, 2);
+                    answer++;
+                } else if (value > 1) {
+                    map.put(point, value + 1);
                 }
             }
+            map.clear();
         }
-        
         return answer;
     }
 }
+
+/*
+전형적인 구현 문제, 먼저 로봇을 전부 이동시키고
+문제는 한번에 다 처리를 해줘야된다는거임 
+Map에 포인트로 저장한다 
+이동이야 r먼저 이동하고 c 이동하면 되는거고 각 로봇마다 활동중인지 판단하는거 있어야하고
+*/

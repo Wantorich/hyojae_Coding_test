@@ -1,44 +1,40 @@
 class Solution {
     public String solution(String video_len, String pos, String op_start, String op_end, String[] commands) {
         String answer = "";
-        int totalLen = getTime(video_len);
-        int currTime = getTime(pos);
-        int strTime = getTime(op_start);
-        int endTime = getTime(op_end);
-        
-        if (strTime <= currTime && currTime <= endTime)
-            currTime = endTime;
-        
+        int currTime = parseTime(pos);
+        int opStart = parseTime(op_start);
+        int opEnd = parseTime(op_end);
+        int endTime = parseTime(video_len);
         for (String command : commands) {
-            switch (command) {
-                case "prev" :
-                    currTime = Math.max(0, currTime - 10);
-                    break;
-                case "next" :
-                    currTime = Math.min(totalLen, currTime + 10);
-                    break;
-                
+            // 오프닝 건너뛰기인지 확인 
+            if (opStart <= currTime && currTime <= opEnd) {
+                currTime = opEnd;
             }
-            if (strTime <= currTime && currTime <= endTime)
-                currTime = endTime;
+            
+            if (command.equals("next")) {
+                currTime = Math.min(endTime, currTime + 10);    
+            } else if (command.equals("prev")) {
+                currTime = Math.max(0, currTime - 10);    
+            }
         }
         
-        int min = currTime / 60;
-        int sec = currTime % 60;
-        
-        if (min < 10)
-            answer += "0";
-        answer += String.valueOf(min);
-        answer += ":";
-        if (sec < 10)
-            answer += "0";
-        answer += String.valueOf(sec);
-        return answer;
+        // 오프닝 건너뛰기인지 확인 
+        if (opStart <= currTime && currTime <= opEnd) {
+            currTime = opEnd;
+        }
+        return parseTime(currTime);
     }
     
-    static int getTime(String time) {
-        int min = Integer.parseInt(time.split(":")[0]) * 60;
-        int sec = Integer.parseInt(time.split(":")[1]);
-        return min + sec;
+    int parseTime(String time) {
+        String[] split = time.split(":");
+        int hour = Integer.parseInt(split[0]);
+        int min = Integer.parseInt(split[1]);
+        return hour * 60 + min;
+    }
+    
+    String parseTime(int time) {
+        int hour = time / 60;
+        int min = time % 60;
+        return String.format("%02d:%02d", hour, min);
     }
 }

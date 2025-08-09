@@ -1,82 +1,103 @@
 import java.util.*;
-import java.util.stream.*;
-import java.util.stream.IntStream;
 
 class Solution {
-    static int MAX_VAL;
-    static List<String> resList = new ArrayList();
-    
     public String[] solution(String[] expressions) {
-        List<String[]> expList = new ArrayList();
-        for (String expression : expressions) {
-            String[] params = getParameters(expression);
-            expList.add(params);
+        int max = 0;
+        List<String[]> list1 = new ArrayList<>(); // X 없는거
+        List<String[]> list2 = new ArrayList<>(); // X 있는거
+        for (String exp : expressions) {
+            String[] split = exp.split(" ");
+            if (split[split.length-1].equals("X")) {
+                list2.add(split);
+            } else {
+                list1.add(split);
+            }
+            for (int i = 0; i < split.length; i++) {
+                if (i % 2 == 0 && !split[i].equals("X")) {
+                    int num = Integer.parseInt(split[i]);
+                    while (num > 0) {
+                        int remain = num % 10;
+                        max = Math.max(max, remain);
+                        num /= 10;
+                    }
+                }
+            }
+        }
+        // System.out.println(max+1);
+        // max+1부터 9까지 완성된 수식에 넣어보면서 후보군을 찾아야함 
+        List<Integer> list3 = new ArrayList<>();
+        
+        for (int i = max+1; i <= 9; i++) {
+            // list1을 뒤지면서 해당 진법으로 모두 성공하는지를 확인해야함 
+            boolean flag = true;
+            for (String str[] : list1) {
+                if (!isCorrect(str, i)) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                list3.add(i);
+            }
         }
         
-        List<Integer> maxIdxList = new ArrayList();
-        O:for (int r = MAX_VAL+1; r <= 9; r++) {
-            for (int i = 0; i < expList.size(); i++) {
-                String [] exps = expList.get(i);
-                if (exps[4].equals("X")) continue;
-                
-                int a = radixInt(exps[0], r);
-                int b = radixInt(exps[2], r);
-                int c = radixInt(exps[4], r);
-
-                int leftExp = exps[1].equals("+") ? a + b : a - b;
-                if (leftExp != c) continue O;                    
+        // System.out.println(list3.size());
+        // for (int n : list3) {
+        //     System.out.print(n + " ");
+        // }
+        
+        Map<String[], Set<Integer>> map = new HashMap<>();
+        for (int radix : list3) {
+            for (String[] str : list2) {
+                int value = solve(str, radix);
+                map.putIfAbsent(str, new HashSet<>());
+                map.get(str).add(value);
             }
-            maxIdxList.add(r);
         }
         
-        for (int i = 0; i < expList.size(); i++) {
-            String[] exp = expList.get(i);
-            if (!exp[4].equals("X")) continue;
-            judgeExp(exp, maxIdxList);
-        }
-
-        return resList.toArray(new String[0]);
-    }
-    
-    static int radixInt(String origin, int radix) {
-        int result = 0;
-        int num = Integer.parseInt(origin);
-        for (int i = 2; i >= 0; i--) {
-            int tenPow = (int) Math.pow(10, i);
-            if (num >= tenPow) {
-                result += num / (int) Math.pow(10, i) * (int) Math.pow(radix, i);
-                num %= tenPow;
+        for (int i = 0; i < list2.size(); i++) {
+            String[] str = list2.get(i);
+            Set<Integer> set = map.get(str);
+            if (set.size() > 1) {
+                str[str.length-1] = "?";
+            } else if (set.size() == 1) {
+                Iterator<Integer> it = set.iterator();
+                str[str.length-1] = String.valueOf(it.next());
             }
         }
-        return result;
+        
+        String[] answer = new String[list2.size()];
+        for (int i = 0; i < list2.size(); i++) {
+            String[] str = list2.get(i);
+            answer[i] = String.join(" ", str[0], str[1], str[2], str[3], str[4]);
+        }
+        return answer;
     }
     
-    static void judgeExp(String[] exp, List<Integer> idxList) {
-        Set<String> resSet = new HashSet();
-        for (int idx : idxList) {
-            int a = radixInt(exp[0], idx);
-            int b = radixInt(exp[2], idx);
-            int leftExp = exp[1].equals("+") ? a + b : a - b;
-            resSet.add(Integer.toString(leftExp, idx));
+    int solve(String[] exp, int radix) {
+        int a = Integer.parseInt(exp[0], radix);
+        int b = Integer.parseInt(exp[2], radix);
+        
+        if (exp[1].equals("+")) {
+            return Integer.parseInt(Integer.toString(a + b, radix));
+        } else {
+            return Integer.parseInt(Integer.toString(a - b, radix));
         }
-
-        Iterator<String> it = resSet.iterator();
-        String result = String.format("%s %s %s = X", exp[0], exp[1], exp[2]);
-        result = resSet.size() > 1 ? result.replace("X", "?") : result.replace("X", it.next());
-        resList.add(result);        
     }
     
-    static String[] getParameters(String expression) {
-        StringTokenizer st = new StringTokenizer(expression, " ");
-        String[] result = new String[5];
-        for (int i = 0; i < 5; i++) {
-            String token = st.nextToken().trim();
-            result[i] = token;
-            if (i == 0 || i == 2 || (i == 4 && !token.equals("X"))) {
-                for (int j = 0; j < token.length(); j++) 
-                    MAX_VAL = Math.max(MAX_VAL, token.charAt(j) - '0');
-            }
+    boolean isCorrect(String[] exp, int radix) {
+        int a = Integer.parseInt(exp[0], radix);
+        int b = Integer.parseInt(exp[2], radix);
+        int c = Integer.parseInt(exp[4], radix);
+        
+        if (exp[1].equals("+")) {
+            return a + b == c;
+        } else {
+            return a - b == c;
         }
-        return result;
     }
 }
+
+/*
+진법 후보는 숫자들중 가장 큰수 + 1부터 시작함
+완전한 수식이 있으면 진법을 알아낼수있다? 아닐수도 2-1 = 1은 못알아냄 
+*/
